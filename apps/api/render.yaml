@@ -1,0 +1,24 @@
+# Blueprint opcional: en Render → New → Blueprint y apunta a este repo.
+# También puedes crear el Web Service manualmente (ver docs/DEPLOY.md).
+
+services:
+  - type: web
+    name: pareja-finanzas-api
+    runtime: node
+    rootDir: apps/api
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"
