@@ -5,7 +5,7 @@ import { getAccessToken, getRefreshToken, saveTokens } from './authStorage';
 const API_URL =
   process.env.EXPO_PUBLIC_API_URL ??
   (Constants.expoConfig?.extra?.apiUrl as string) ??
-  'http://192.168.1.100:4000';
+  'https://pareja-finanzas.onrender.com';
 
 async function request<T>(
   path: string,

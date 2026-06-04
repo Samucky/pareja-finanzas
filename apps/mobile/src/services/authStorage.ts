@@ -3,20 +3,44 @@ import * as SecureStore from 'expo-secure-store';
 const ACCESS_KEY = 'access_token';
 const REFRESH_KEY = 'refresh_token';
 
+async function safeGet(key: string): Promise<string | null> {
+  try {
+    return await SecureStore.getItemAsync(key);
+  } catch {
+    return null;
+  }
+}
+
+async function safeSet(key: string, value: string): Promise<void> {
+  try {
+    await SecureStore.setItemAsync(key, value);
+  } catch {
+    // En algunos dispositivos el almacén seguro falla; la app sigue sin persistir token.
+  }
+}
+
+async function safeDelete(key: string): Promise<void> {
+  try {
+    await SecureStore.deleteItemAsync(key);
+  } catch {
+    // ignore
+  }
+}
+
 export async function saveTokens(access: string, refresh: string): Promise<void> {
-  await SecureStore.setItemAsync(ACCESS_KEY, access);
-  await SecureStore.setItemAsync(REFRESH_KEY, refresh);
+  await safeSet(ACCESS_KEY, access);
+  await safeSet(REFRESH_KEY, refresh);
 }
 
 export async function getAccessToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(ACCESS_KEY);
+  return safeGet(ACCESS_KEY);
 }
 
 export async function getRefreshToken(): Promise<string | null> {
-  return SecureStore.getItemAsync(REFRESH_KEY);
+  return safeGet(REFRESH_KEY);
 }
 
 export async function clearTokens(): Promise<void> {
-  await SecureStore.deleteItemAsync(ACCESS_KEY);
-  await SecureStore.deleteItemAsync(REFRESH_KEY);
+  await safeDelete(ACCESS_KEY);
+  await safeDelete(REFRESH_KEY);
 }

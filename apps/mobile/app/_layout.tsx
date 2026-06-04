@@ -1,5 +1,7 @@
-import { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import 'react-native-gesture-handler';
+import { useEffect, useState } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts, DMSans_600SemiBold, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
@@ -11,14 +13,16 @@ import { useAuthStore } from '../src/store/authStore';
 import { api } from '../src/services/api';
 import { getAccessToken } from '../src/services/authStorage';
 import { TransactionModal } from '../src/components/TransactionModal';
+import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const queryClient = new QueryClient();
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
+  const navigationState = useRootNavigationState();
   const { user, isHydrated, setUser, setHydrated } = useAuthStore();
 
   useEffect(() => {
@@ -28,6 +32,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         if (token) {
           const me = await api.me();
           setUser(me);
+        } else {
+          setUser(null);
         }
       } catch {
         setUser(null);
@@ -38,41 +44,74 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   }, [setUser, setHydrated]);
 
   useEffect(() => {
-    if (!isHydrated) return;
-    const inAuth = segments[0] === '(auth)';
+    if (!isHydrated || !navigationState?.key) return;
 
-    if (!user && !inAuth) {
+    const inAuthGroup = segments[0] === '(auth)';
+
+    if (!user && !inAuthGroup) {
       router.replace('/(auth)/login');
-    } else if (user && !user.coupleId && !segments.includes('couple-setup')) {
-      router.replace('/(auth)/couple-setup');
-    } else if (user?.coupleId && inAuth) {
+      return;
+    }
+    if (user && !user.coupleId) {
+      if (!segments.includes('couple-setup')) router.replace('/(auth)/couple-setup');
+      return;
+    }
+    if (user?.coupleId && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [user, isHydrated, segments, router]);
+  }, [user, isHydrated, segments, router, navigationState?.key]);
+
+  if (!isHydrated || !navigationState?.key) {
+    return (
+      <View style={styles.boot}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return <>{children}</>;
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     DMSans_600SemiBold,
     DMSans_700Bold,
     Inter_400Regular,
     Inter_500Medium,
   });
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync().catch(() => {});
+      setAppReady(true);
+    }
+  }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded) return null;
+  useEffect(() => {
+    const t = setTimeout(() => {
+      SplashScreen.hideAsync().catch(() => {});
+      setAppReady(true);
+    }, 4000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!appReady) {
+    return (
+      <View style={styles.boot}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+    <ErrorBoundary>
+    <GestureHandlerRootView style={styles.root}>
       <QueryClientProvider client={queryClient}>
         <StatusBar style="light" />
         <AuthGate>
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
           </Stack>
@@ -80,5 +119,16 @@ export default function RootLayout() {
         </AuthGate>
       </QueryClientProvider>
     </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.background },
+  boot: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+});
