@@ -25,6 +25,21 @@ export function createApp() {
   app.use(morgan('dev'));
   app.use(express.json({ limit: '100kb' }));
 
+  app.get('/', (_req, res) => {
+    res.json({
+      name: 'Pareja Finanzas API',
+      status: 'running',
+      health: '/health',
+      docs: {
+        auth: '/api/auth',
+        dashboard: '/api/dashboard',
+        transactions: '/api/transactions',
+        savings: '/api/savings',
+        couples: '/api/couples',
+      },
+    });
+  });
+
   app.get('/health', (_req, res) => res.json({ ok: true }));
 
   app.use('/api/auth', authRouter);
