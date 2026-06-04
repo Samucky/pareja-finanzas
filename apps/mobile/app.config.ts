@@ -9,6 +9,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'dark',
   scheme: 'parejafinanzas',
   android: {
+    package: 'com.samucky.parejafinanzas',
     adaptiveIcon: {
       backgroundColor: '#0F1117',
       foregroundImage: './assets/android-icon-foreground.png',
