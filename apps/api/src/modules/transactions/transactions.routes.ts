@@ -5,6 +5,7 @@ import { Transaction, EXPENSE_CATEGORIES } from '../../models/Transaction.js';
 import { updateBalances } from '../../services/balance.service.js';
 import { getDashboard } from '../../services/dashboard.service.js';
 import { emitToCouple, CoupleEvents } from '../../sockets/emitter.js';
+import { deleteTransaction, updateTransaction } from '../../services/transaction.service.js';
 
 export const transactionsRouter = Router();
 transactionsRouter.use(requireAuth, requireCouple);
@@ -65,6 +66,31 @@ transactionsRouter.get('/', async (req, res, next) => {
       .sort({ createdAt: -1 })
       .limit(100);
     res.json({ transactions: list });
+  } catch (e) {
+    next(e);
+  }
+});
+
+const updateSchema = z.object({
+  amount: z.number().positive().optional(),
+  category: z.enum(EXPENSE_CATEGORIES).optional(),
+  note: z.string().max(200).optional(),
+});
+
+transactionsRouter.patch('/:id', async (req, res, next) => {
+  try {
+    const body = updateSchema.parse(req.body);
+    const dashboard = await updateTransaction(req.auth!.coupleId!, req.params.id, body);
+    res.json({ dashboard });
+  } catch (e) {
+    next(e);
+  }
+});
+
+transactionsRouter.delete('/:id', async (req, res, next) => {
+  try {
+    const dashboard = await deleteTransaction(req.auth!.coupleId!, req.params.id);
+    res.json({ dashboard });
   } catch (e) {
     next(e);
   }

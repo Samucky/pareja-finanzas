@@ -71,7 +71,30 @@ export const api = {
       { method: 'POST', body: JSON.stringify({ code: code.toUpperCase() }) }
     ),
 
+  getInvite: () =>
+    request<{ inviteCode: string; inviteExpiresAt: string; memberCount: number }>(
+      '/api/couples/invite'
+    ),
+
+  regenerateInvite: () =>
+    request<{ inviteCode: string; inviteExpiresAt: string; memberCount: number }>(
+      '/api/couples/regenerate-invite',
+      { method: 'POST', body: '{}' }
+    ),
+
   getDashboard: () => request<Dashboard>('/api/dashboard'),
+
+  updateTransaction: (
+    id: string,
+    body: { amount?: number; category?: ExpenseCategory; note?: string }
+  ) =>
+    request<{ dashboard: Dashboard }>(`/api/transactions/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+
+  deleteTransaction: (id: string) =>
+    request<{ dashboard: Dashboard }>(`/api/transactions/${id}`, { method: 'DELETE' }),
 
   createTransaction: (body: {
     type: 'income' | 'expense';

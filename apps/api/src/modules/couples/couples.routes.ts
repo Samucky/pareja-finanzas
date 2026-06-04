@@ -1,7 +1,12 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { requireAuth } from '../../middleware/auth.middleware.js';
-import { createCouple, joinCoupleByCode } from '../../services/couple.service.js';
+import { requireAuth, requireCouple } from '../../middleware/auth.middleware.js';
+import {
+  createCouple,
+  joinCoupleByCode,
+  regenerateInviteCode,
+  getCoupleInvite,
+} from '../../services/couple.service.js';
 import { User } from '../../models/User.js';
 import { signAccessToken, signRefreshToken } from '../../services/jwt.service.js';
 
@@ -28,7 +33,7 @@ couplesRouter.post('/create', async (req, res, next) => {
     };
     res.status(201).json({
       user: {
-        id: user._id.toString(),
+        id: auth.userId,
         email: user.email,
         displayName: user.displayName,
         coupleId: couple._id.toString(),
@@ -67,7 +72,7 @@ couplesRouter.post('/join', async (req, res, next) => {
     };
     res.json({
       user: {
-        id: user._id.toString(),
+        id: auth.userId,
         email: user.email,
         displayName: user.displayName,
         coupleId: couple._id.toString(),
@@ -85,6 +90,34 @@ couplesRouter.post('/join', async (req, res, next) => {
       next(e);
       return;
     }
+    next(e);
+  }
+});
+
+couplesRouter.use(requireCouple);
+
+couplesRouter.get('/invite', async (req, res, next) => {
+  try {
+    const couple = await getCoupleInvite(req.auth!.coupleId!, req.auth!.userId);
+    res.json({
+      inviteCode: couple.inviteCode,
+      inviteExpiresAt: couple.inviteExpiresAt,
+      memberCount: couple.members.length,
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+couplesRouter.post('/regenerate-invite', async (req, res, next) => {
+  try {
+    const couple = await regenerateInviteCode(req.auth!.coupleId!, req.auth!.userId);
+    res.json({
+      inviteCode: couple.inviteCode,
+      inviteExpiresAt: couple.inviteExpiresAt,
+      memberCount: couple.members.length,
+    });
+  } catch (e) {
     next(e);
   }
 });

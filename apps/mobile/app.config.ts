@@ -1,7 +1,7 @@
 const config = {
   name: 'Pareja Finanzas',
   slug: 'pareja-finanzas',
-  version: '1.0.4',
+  version: '1.1.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'dark',

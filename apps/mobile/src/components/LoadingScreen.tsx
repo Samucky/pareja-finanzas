@@ -26,7 +26,9 @@ export function LoadingScreen({
 
   return (
     <View style={[styles.wrap, variant === 'boot' && styles.boot]}>
+      <View style={styles.glowTop} />
       <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+      <Text style={styles.brand}>Pareja Finanzas</Text>
       <ActivityIndicator size="large" color={colors.primary} style={styles.spinner} />
       <Text style={styles.title}>{message}</Text>
       {submessage ? <Text style={styles.sub}>{submessage}</Text> : null}
@@ -46,26 +48,44 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 999,
   },
+  glowTop: {
+    position: 'absolute',
+    top: '15%',
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: colors.primary,
+    opacity: 0.08,
+  },
   logo: {
-    width: 88,
-    height: 88,
-    borderRadius: 22,
+    width: 100,
+    height: 100,
+    borderRadius: 24,
+    marginBottom: spacing.md,
+  },
+  brand: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
     marginBottom: spacing.lg,
   },
-  spinner: {
-    marginVertical: spacing.lg,
-  },
+  spinner: { marginVertical: spacing.md },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: '600',
     color: colors.text,
     marginTop: spacing.sm,
+    textAlign: 'center',
   },
   sub: {
     fontSize: 14,
     color: colors.textSecondary,
     marginTop: spacing.sm,
     textAlign: 'center',
+    maxWidth: 280,
+    lineHeight: 20,
   },
   inline: {
     flexDirection: 'row',
@@ -74,8 +94,5 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingVertical: spacing.xxxl,
   },
-  inlineText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
+  inlineText: { fontSize: 14, color: colors.textSecondary },
 });

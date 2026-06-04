@@ -15,6 +15,7 @@ import { getAccessToken } from '../src/services/authStorage';
 import { TransactionModal } from '../src/components/TransactionModal';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { LoadingScreen } from '../src/components/LoadingScreen';
+import { AppAlert } from '../src/components/AppAlert';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -129,6 +130,7 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" />
             </Stack>
             <TransactionModal />
+            <AppAlert />
           </AuthGate>
         </QueryClientProvider>
       </GestureHandlerRootView>

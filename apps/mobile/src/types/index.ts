@@ -18,7 +18,13 @@ export interface Balances {
 }
 
 export interface Dashboard {
-  couple: { id: string; name: string; inviteCode: string };
+  couple: {
+    id: string;
+    name: string;
+    inviteCode: string;
+    inviteExpiresAt?: string;
+    memberCount?: number;
+  };
   balances: Balances;
   monthSummary: { income: number; expense: number };
   categoryBreakdown: Record<string, number>;

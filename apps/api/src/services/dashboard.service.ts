@@ -38,7 +38,13 @@ export async function getDashboard(coupleId: string) {
     });
 
   return {
-    couple: { id: couple._id.toString(), name: couple.name, inviteCode: couple.inviteCode },
+    couple: {
+      id: couple._id.toString(),
+      name: couple.name,
+      inviteCode: couple.inviteCode,
+      inviteExpiresAt: couple.inviteExpiresAt,
+      memberCount: couple.members.length,
+    },
     balances,
     monthSummary: { income: monthIncome, expense: monthExpense },
     categoryBreakdown: byCategory,

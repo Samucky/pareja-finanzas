@@ -10,6 +10,8 @@ import {
   Modal,
 } from 'react-native';
 import { Link, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useResponsive } from '../../src/theme/layout';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -27,6 +29,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { contentPadding, maxContentWidth } = useResponsive();
 
   async function handleLogin() {
     setLoading(true);
@@ -45,9 +48,13 @@ export default function LoginScreen() {
   }
 
   return (
+    <SafeAreaView style={styles.flex}>
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.hero}>
+      <ScrollView
+        contentContainerStyle={[styles.container, { paddingHorizontal: contentPadding }]}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={[styles.hero, { maxWidth: maxContentWidth, width: '100%', alignSelf: 'center' }]}>
           <Image source={require('../../assets/icon.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.brand}>Pareja Finanzas</Text>
           <Text style={styles.sub}>Control compartido en tiempo real</Text>
@@ -69,6 +76,7 @@ export default function LoginScreen() {
         <LoadingScreen message="Entrando" submessage="Conectando con el servidor..." variant="boot" />
       </Modal>
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
