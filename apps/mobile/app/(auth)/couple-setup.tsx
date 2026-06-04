@@ -47,9 +47,9 @@ export default function CoupleSetupScreen() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error';
       const map: Record<string, string> = {
-        INVALID_CODE: 'C?digo no v?lido',
-        CODE_EXPIRED: 'C?digo expirado',
-        COUPLE_FULL: 'La pareja ya est? completa',
+        INVALID_CODE: 'Codigo no valido',
+        CODE_EXPIRED: 'Codigo expirado',
+        COUPLE_FULL: 'La pareja ya esta completa',
       };
       setError(map[msg] ?? msg);
     } finally {
@@ -59,35 +59,51 @@ export default function CoupleSetupScreen() {
 
   return (
     <>
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Vincular pareja</Text>
-      <Text style={styles.sub}>Comparte finanzas en tiempo real con tu pareja</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Vincular pareja</Text>
+        <Text style={styles.sub}>Comparte finanzas en tiempo real con tu pareja</Text>
 
-      <Card>
-        <Text style={styles.cardTitle}>Crear espacio nuevo</Text>
-        <Text style={styles.cardSub}>Obtendr?s un c?digo de 6 caracteres v?lido 24h</Text>
-        <Button label={loading ? 'ÿÿÿ' : 'Crear pareja'} onPress={createCouple} disabled={loading} style={{ marginTop: spacing.md }} />
-        {inviteCode ? (
-          <View style={styles.codeBox}>
-            <Text style={styles.codeLabel}>C?digo para tu pareja</Text>
-            <Text style={styles.code}>{inviteCode}</Text>
-            <Button label="Ir al inicio" onPress={() => router.replace('/(tabs)')} variant="secondary" style={{ marginTop: spacing.md }} />
-          </View>
-        ) : null}
-      </Card>
+        <Card>
+          <Text style={styles.cardTitle}>Crear espacio nuevo</Text>
+          <Text style={styles.cardSub}>Obtendras un codigo de 6 caracteres valido 24h</Text>
+          <Button
+            label={loading ? 'Creando...' : 'Crear pareja'}
+            onPress={createCouple}
+            disabled={loading}
+            style={{ marginTop: spacing.md }}
+          />
+          {inviteCode ? (
+            <View style={styles.codeBox}>
+              <Text style={styles.codeLabel}>Codigo para tu pareja</Text>
+              <Text style={styles.code}>{inviteCode}</Text>
+              <Button
+                label="Ir al inicio"
+                onPress={() => router.replace('/(tabs)')}
+                variant="secondary"
+                style={{ marginTop: spacing.md }}
+              />
+            </View>
+          ) : null}
+        </Card>
 
-      <Card style={{ marginTop: spacing.lg }}>
-        <Text style={styles.cardTitle}>Unirse con c?digo</Text>
-        <Input label="C?digo de invitaci?n" value={code} onChangeText={setCode} autoCapitalize="characters" maxLength={6} />
-        <Button label="Unirse" onPress={joinCouple} variant="secondary" disabled={loading || code.length < 6} />
-      </Card>
+        <Card style={{ marginTop: spacing.lg }}>
+          <Text style={styles.cardTitle}>Unirse con codigo</Text>
+          <Input
+            label="Codigo de invitacion"
+            value={code}
+            onChangeText={setCode}
+            autoCapitalize="characters"
+            maxLength={6}
+          />
+          <Button label="Unirse" onPress={joinCouple} variant="secondary" disabled={loading || code.length < 6} />
+        </Card>
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-    </ScrollView>
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+      </ScrollView>
 
-    <Modal visible={loading} transparent animationType="fade">
-      <LoadingScreen message="Vinculando pareja" submessage="Un momento..." variant="boot" />
-    </Modal>
+      <Modal visible={loading} transparent animationType="fade">
+        <LoadingScreen message="Vinculando pareja" submessage="Un momento..." variant="boot" />
+      </Modal>
     </>
   );
 }
