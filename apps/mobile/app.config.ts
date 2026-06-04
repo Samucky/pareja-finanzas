@@ -1,14 +1,11 @@
-import type { ExpoConfig } from 'expo/config';
-
-const config: ExpoConfig = {
+const config = {
   name: 'Pareja Finanzas',
   slug: 'pareja-finanzas',
-  version: '1.0.2',
+  version: '1.0.3',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'dark',
   scheme: 'parejafinanzas',
-  newArchEnabled: false,
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',

@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -19,6 +20,15 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 const queryClient = new QueryClient();
 
+const AUTH_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms)),
+  ]);
+}
+
 function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
@@ -26,21 +36,32 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, isHydrated, setUser, setHydrated } = useAuthStore();
 
   useEffect(() => {
+    let cancelled = false;
+
     (async () => {
       try {
         const token = await getAccessToken();
         if (token) {
-          const me = await api.me();
-          setUser(me);
-        } else {
+          const me = await withTimeout(api.me(), AUTH_TIMEOUT_MS);
+          if (!cancelled) setUser(me);
+        } else if (!cancelled) {
           setUser(null);
         }
       } catch {
-        setUser(null);
+        if (!cancelled) setUser(null);
       } finally {
-        setHydrated(true);
+        if (!cancelled) setHydrated(true);
       }
     })();
+
+    const forceHydrate = setTimeout(() => {
+      if (!cancelled) setHydrated(true);
+    }, AUTH_TIMEOUT_MS + 500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(forceHydrate);
+    };
   }, [setUser, setHydrated]);
 
   useEffect(() => {
@@ -61,17 +82,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     }
   }, [user, isHydrated, segments, router, navigationState?.key]);
 
-  if (!isHydrated || !navigationState?.key) {
-    return (
-      <LoadingScreen
-        variant="boot"
-        message="Pareja Finanzas"
-        submessage="Preparando tu espacio..."
-      />
-    );
-  }
-
-  return <>{children}</>;
+  return (
+    <View style={styles.gate}>
+      {children}
+      {!isHydrated ? (
+        <LoadingScreen variant="boot" message="Pareja Finanzas" submessage="Iniciando..." />
+      ) : null}
+    </View>
+  );
 }
 
 export default function RootLayout() {
@@ -81,41 +99,32 @@ export default function RootLayout() {
     Inter_400Regular,
     Inter_500Medium,
   });
-  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
+    const hide = () => SplashScreen.hideAsync().catch(() => {});
+
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync().catch(() => {});
-      setAppReady(true);
+      hide();
+      return;
     }
-  }, [fontsLoaded, fontError]);
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      SplashScreen.hideAsync().catch(() => {});
-      setAppReady(true);
-    }, 5000);
+    const t = setTimeout(hide, 1500);
     return () => clearTimeout(t);
-  }, []);
-
-  if (!appReady) {
-    return (
-      <LoadingScreen
-        variant="boot"
-        message="Pareja Finanzas"
-        submessage="Cargando recursos..."
-      />
-    );
-  }
+  }, [fontsLoaded, fontError]);
 
   return (
     <ErrorBoundary>
-      <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+      <GestureHandlerRootView style={styles.root}>
         <QueryClientProvider client={queryClient}>
           <StatusBar style="light" />
           <AuthGate>
-            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: colors.background },
+              }}
+            >
+              <Stack.Screen name="index" />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
             </Stack>
@@ -126,3 +135,8 @@ export default function RootLayout() {
     </ErrorBoundary>
   );
 }
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: colors.background },
+  gate: { flex: 1 },
+});

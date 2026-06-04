@@ -1,14 +1,11 @@
 import { Redirect } from 'expo-router';
 import { useAuthStore } from '../src/store/authStore';
-import { LoadingScreen } from '../src/components/LoadingScreen';
 
 export default function Index() {
   const { user, isHydrated } = useAuthStore();
 
   if (!isHydrated) {
-    return (
-      <LoadingScreen message="Iniciando sesión" submessage="Un momento..." variant="page" />
-    );
+    return null;
   }
 
   if (!user) return <Redirect href="/(auth)/login" />;
