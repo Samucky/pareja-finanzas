@@ -22,6 +22,9 @@ const config: ExpoConfig = {
     apiUrl:
       process.env.EXPO_PUBLIC_API_URL ??
       'https://pareja-finanzas.onrender.com',
+    eas: {
+      projectId: 'f6000fcf-cba5-4325-8ac0-0df72763f401',
+    },
   },
 };
 
