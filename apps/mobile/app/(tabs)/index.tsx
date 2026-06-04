@@ -11,6 +11,7 @@ import { useAuthStore } from '../../src/store/authStore';
 import { useUiStore } from '../../src/store/uiStore';
 import { ActivityList } from '../../src/components/ActivityList';
 import { CategoryBreakdown } from '../../src/components/CategoryBreakdown';
+import { ScreenLoader } from '../../src/components/ScreenLoader';
 
 export default function DashboardScreen() {
   const user = useAuthStore((s) => s.user);
@@ -23,6 +24,12 @@ export default function DashboardScreen() {
   });
 
   const names = data?.members.map((m) => m.displayName).join(' & ') ?? user?.displayName;
+
+  if (isLoading && !data) {
+    return (
+      <ScreenLoader message="Sincronizando finanzas" submessage="Conectando con tu pareja..." />
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

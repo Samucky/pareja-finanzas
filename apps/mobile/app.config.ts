@@ -3,12 +3,17 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'Pareja Finanzas',
   slug: 'pareja-finanzas',
-  version: '1.0.1',
+  version: '1.0.2',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'dark',
   scheme: 'parejafinanzas',
   newArchEnabled: false,
+  splash: {
+    image: './assets/splash-icon.png',
+    resizeMode: 'contain',
+    backgroundColor: '#0F1117',
+  },
   android: {
     package: 'com.samucky.parejafinanzas',
     adaptiveIcon: {
@@ -18,7 +23,20 @@ const config: ExpoConfig = {
       monochromeImage: './assets/android-icon-monochrome.png',
     },
   },
-  plugins: ['expo-router', 'expo-font', 'expo-secure-store', 'expo-splash-screen'],
+  plugins: [
+    'expo-router',
+    'expo-font',
+    'expo-secure-store',
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        imageWidth: 120,
+        resizeMode: 'contain',
+        backgroundColor: '#0F1117',
+      },
+    ],
+  ],
   extra: {
     apiUrl:
       process.env.EXPO_PUBLIC_API_URL ??

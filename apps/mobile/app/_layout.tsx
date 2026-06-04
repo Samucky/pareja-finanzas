@@ -1,6 +1,5 @@
 import 'react-native-gesture-handler';
 import { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -14,6 +13,7 @@ import { api } from '../src/services/api';
 import { getAccessToken } from '../src/services/authStorage';
 import { TransactionModal } from '../src/components/TransactionModal';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
+import { LoadingScreen } from '../src/components/LoadingScreen';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -63,9 +63,11 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (!isHydrated || !navigationState?.key) {
     return (
-      <View style={styles.boot}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      <LoadingScreen
+        variant="boot"
+        message="Pareja Finanzas"
+        submessage="Preparando tu espacio..."
+      />
     );
   }
 
@@ -92,43 +94,35 @@ export default function RootLayout() {
     const t = setTimeout(() => {
       SplashScreen.hideAsync().catch(() => {});
       setAppReady(true);
-    }, 4000);
+    }, 5000);
     return () => clearTimeout(t);
   }, []);
 
   if (!appReady) {
     return (
-      <View style={styles.boot}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      <LoadingScreen
+        variant="boot"
+        message="Pareja Finanzas"
+        submessage="Cargando recursos..."
+      />
     );
   }
 
   return (
     <ErrorBoundary>
-    <GestureHandlerRootView style={styles.root}>
-      <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" />
-        <AuthGate>
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-          </Stack>
-          <TransactionModal />
-        </AuthGate>
-      </QueryClientProvider>
-    </GestureHandlerRootView>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.background }}>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar style="light" />
+          <AuthGate>
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+            </Stack>
+            <TransactionModal />
+          </AuthGate>
+        </QueryClientProvider>
+      </GestureHandlerRootView>
     </ErrorBoundary>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background },
-  boot: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-});

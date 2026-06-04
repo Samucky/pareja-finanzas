@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Modal } from 'react-native';
+import { LoadingScreen } from '../../src/components/LoadingScreen';
 import { Link, useRouter } from 'expo-router';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
@@ -53,6 +54,10 @@ export default function RegisterScreen() {
           <Text style={styles.linkText}>Ya tengo cuenta</Text>
         </Link>
       </ScrollView>
+
+      <Modal visible={loading} transparent animationType="fade">
+        <LoadingScreen message="Creando cuenta" submessage="Configurando tu perfil..." variant="boot" />
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

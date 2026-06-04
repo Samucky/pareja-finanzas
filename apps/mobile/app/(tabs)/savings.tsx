@@ -10,15 +10,20 @@ import { api } from '../../src/services/api';
 import { formatCurrency } from '../../src/utils/format';
 import { useUiStore } from '../../src/store/uiStore';
 import { ActivityList } from '../../src/components/ActivityList';
+import { ScreenLoader } from '../../src/components/ScreenLoader';
 
 export default function SavingsScreen() {
   const openModal = useUiStore((s) => s.openModal);
-  const { data, refetch, isRefetching } = useQuery({
+  const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api.getDashboard(),
   });
 
   const savingsItems = (data?.recentActivity ?? []).filter((a) => a.kind === 'savings');
+
+  if (isLoading && !data) {
+    return <ScreenLoader message="Cargando ahorros" submessage="Obteniendo tu fondo compartido..." />;
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

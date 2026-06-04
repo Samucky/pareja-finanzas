@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Modal } from 'react-native';
+import { LoadingScreen } from '../../src/components/LoadingScreen';
 import { colors } from '../../src/theme/colors';
 import { spacing } from '../../src/theme/spacing';
 import { typography } from '../../src/theme/typography';
@@ -46,9 +47,9 @@ export default function CoupleSetupScreen() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error';
       const map: Record<string, string> = {
-        INVALID_CODE: 'Código no válido',
-        CODE_EXPIRED: 'Código expirado',
-        COUPLE_FULL: 'La pareja ya está completa',
+        INVALID_CODE: 'C?digo no v?lido',
+        CODE_EXPIRED: 'C?digo expirado',
+        COUPLE_FULL: 'La pareja ya est? completa',
       };
       setError(map[msg] ?? msg);
     } finally {
@@ -57,17 +58,18 @@ export default function CoupleSetupScreen() {
   }
 
   return (
+    <>
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Vincular pareja</Text>
       <Text style={styles.sub}>Comparte finanzas en tiempo real con tu pareja</Text>
 
       <Card>
         <Text style={styles.cardTitle}>Crear espacio nuevo</Text>
-        <Text style={styles.cardSub}>Obtendrás un código de 6 caracteres válido 24h</Text>
-        <Button label={loading ? '…' : 'Crear pareja'} onPress={createCouple} disabled={loading} style={{ marginTop: spacing.md }} />
+        <Text style={styles.cardSub}>Obtendr?s un c?digo de 6 caracteres v?lido 24h</Text>
+        <Button label={loading ? '���' : 'Crear pareja'} onPress={createCouple} disabled={loading} style={{ marginTop: spacing.md }} />
         {inviteCode ? (
           <View style={styles.codeBox}>
-            <Text style={styles.codeLabel}>Código para tu pareja</Text>
+            <Text style={styles.codeLabel}>C?digo para tu pareja</Text>
             <Text style={styles.code}>{inviteCode}</Text>
             <Button label="Ir al inicio" onPress={() => router.replace('/(tabs)')} variant="secondary" style={{ marginTop: spacing.md }} />
           </View>
@@ -75,13 +77,18 @@ export default function CoupleSetupScreen() {
       </Card>
 
       <Card style={{ marginTop: spacing.lg }}>
-        <Text style={styles.cardTitle}>Unirse con código</Text>
-        <Input label="Código de invitación" value={code} onChangeText={setCode} autoCapitalize="characters" maxLength={6} />
+        <Text style={styles.cardTitle}>Unirse con c?digo</Text>
+        <Input label="C?digo de invitaci?n" value={code} onChangeText={setCode} autoCapitalize="characters" maxLength={6} />
         <Button label="Unirse" onPress={joinCouple} variant="secondary" disabled={loading || code.length < 6} />
       </Card>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </ScrollView>
+
+    <Modal visible={loading} transparent animationType="fade">
+      <LoadingScreen message="Vinculando pareja" submessage="Un momento..." variant="boot" />
+    </Modal>
+    </>
   );
 }
 

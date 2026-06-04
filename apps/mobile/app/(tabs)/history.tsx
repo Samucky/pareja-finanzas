@@ -7,12 +7,17 @@ import { typography } from '../../src/theme/typography';
 import { Card } from '../../src/components/ui/Card';
 import { api } from '../../src/services/api';
 import { ActivityList } from '../../src/components/ActivityList';
+import { ScreenLoader } from '../../src/components/ScreenLoader';
 
 export default function HistoryScreen() {
-  const { data, refetch, isRefetching } = useQuery({
+  const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['dashboard'],
     queryFn: () => api.getDashboard(),
   });
+
+  if (isLoading && !data) {
+    return <ScreenLoader message="Cargando historial" submessage="Recuperando movimientos..." />;
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

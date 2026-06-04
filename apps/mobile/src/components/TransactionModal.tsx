@@ -18,6 +18,7 @@ import { Button } from './ui/Button';
 import { api } from '../services/api';
 import { useUiStore } from '../store/uiStore';
 import { CATEGORY_LABELS, type ExpenseCategory } from '../types';
+import { LoadingScreen } from './LoadingScreen';
 
 const CATEGORIES = Object.keys(CATEGORY_LABELS) as ExpenseCategory[];
 
@@ -70,6 +71,7 @@ export function TransactionModal() {
   if (!visible || !modal) return null;
 
   return (
+    <>
     <Modal visible animationType="slide" transparent onRequestClose={closeModal}>
       <Pressable style={styles.overlay} onPress={closeModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
@@ -119,6 +121,11 @@ export function TransactionModal() {
         </KeyboardAvoidingView>
       </Pressable>
     </Modal>
+
+    <Modal visible={mutation.isPending} transparent animationType="fade">
+      <LoadingScreen message="Guardando" submessage="Actualizando finanzas..." variant="boot" />
+    </Modal>
+    </>
   );
 }
 
