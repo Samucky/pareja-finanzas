@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
   },
   boot: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     zIndex: 999,
   },
   logo: {
